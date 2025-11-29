@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Clock - Interactive Analog & Digital Clock</title>
+    <meta name="description" content="A beautiful, interactive clock with both analog and digital displays, multiple themes, and smooth animations.">
+    <meta name="keywords" content="clock, analog clock, digital clock, time, web clock, interactive clock">
+    <meta name="author" content="Clock App">
+    <meta property="og:title" content="Beautiful Clock - Interactive Analog & Digital Clock">
+    <meta property="og:description" content="A beautiful, interactive clock with both analog and digital displays, multiple themes, and smooth animations.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Beautiful Clock - Interactive Analog & Digital Clock">
+    <meta name="twitter:description" content="A beautiful, interactive clock with both analog and digital displays, multiple themes, and smooth animations.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .clock-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .analog-clock {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                        inset 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border: 8px solid #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clock-face {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #2c3e50;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .hand {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 10px;
+            transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .hour-hand {
+            width: 8px;
+            height: 80px;
+            background: linear-gradient(to top, #2c3e50, #34495e);
+            margin-left: -4px;
+            margin-top: -80px;
+        }
+
+        .minute-hand {
+            width: 6px;
+            height: 110px;
+            background: linear-gradient(to top, #3498db, #2980b9);
+            margin-left: -3px;
+            margin-top: -110px;
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 120px;
+            background: linear-gradient(to top, #e74c3c, #c0392b);
+            margin-left: -1px;
+            margin-top: -120px;
+        }
+
+        .clock-number {
+            position: absolute;
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .clock-number.twelve { top: 10px; left: 50%; transform: translateX(-50%); }
+        .clock-number.one { top: 25px; right: 75px; }
+        .clock-number.two { top: 60px; right: 25px; }
+        .clock-number.three { right: 10px; top: 50%; transform: translateY(-50%); }
+        .clock-number.four { bottom: 60px; right: 25px; }
+        .clock-number.five { bottom: 25px; right: 75px; }
+        .clock-number.six { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .clock-number.seven { bottom: 25px; left: 75px; }
+        .clock-number.eight { bottom: 60px; left: 25px; }
+        .clock-number.nine { left: 10px; top: 50%; transform: translateY(-50%); }
+        .clock-number.ten { top: 60px; left: 25px; }
+        .clock-number.eleven { top: 25px; left: 75px; }
+
+        .clock-tick {
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            background: #95a5a6;
+            left: 50%;
+            transform-origin: center 150px;
+        }
+
+        .clock-tick.major {
+            width: 4px;
+            height: 15px;
+            background: #7f8c8d;
+        }
+
+        .digital-clock {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .time-display {
+            font-size: 3rem;
+            font-weight: 300;
+            color: #ecf0f1;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .time-separator {
+            animation: blink 1s infinite;
+            color: #e74c3c;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            color: #bdc3c7;
+            text-align: center;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        .day-display {
+            font-size: 1rem;
+            color: #95a5a6;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .theme-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-btn.light { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .theme-btn.dark { background: linear-gradient(135deg, #2c3e50, #34495e); }
+        .theme-btn.ocean { background: linear-gradient(135deg, #3498db, #2980b9); }
+
+        body.dark-theme {
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #2d2d2d 100%);
+        }
+
+        body.dark-theme .analog-clock {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-color: #ecf0f1;
+        }
+
+        body.dark-theme .clock-number {
+            color: #ecf0f1;
+        }
+
+        body.dark-theme .clock-tick {
+            background: #7f8c8d;
+        }
+
+        body.dark-theme .clock-tick.major {
+            background: #95a5a6;
+        }
+
+        body.dark-theme .hour-hand {
+            background: linear-gradient(to top, #ecf0f1, #bdc3c7);
+        }
+
+        body.dark-theme .minute-hand {
+            background: linear-gradient(to top, #3498db, #5dade2);
+        }
+
+        body.dark-theme .second-hand {
+            background: linear-gradient(to top, #e74c3c, #ec7063);
+        }
+
+        body.dark-theme .clock-center {
+            background: #ecf0f1;
+        }
+
+        body.dark-theme .digital-clock {
+            background: linear-gradient(145deg, #ecf0f1, #bdc3c7);
+        }
+
+        body.dark-theme .time-display {
+            color: #2c3e50;
+        }
+
+        body.dark-theme .date-display {
+            color: #7f8c8d;
+        }
+
+        body.dark-theme .day-display {
+            color: #95a5a6;
+        }
+
+        body.ocean-theme {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3498db 100%);
+        }
+
+        body.ocean-theme .analog-clock {
+            background: linear-gradient(145deg, #ffffff, #ecf0f1);
+            border-color: #1e3c72;
+        }
+
+        body.ocean-theme .clock-number {
+            color: #1e3c72;
+        }
+
+        body.ocean-theme .hour-hand {
+            background: linear-gradient(to top, #1e3c72, #2a5298);
+        }
+
+        body.ocean-theme .minute-hand {
+            background: linear-gradient(to top, #3498db, #5dade2);
+        }
+
+        body.ocean-theme .second-hand {
+            background: linear-gradient(to top, #e74c3c, #ec7063);
+        }
+
+        body.ocean-theme .clock-center {
+            background: #1e3c72;
+        }
+
+        @media (max-width: 768px) {
+            .analog-clock {
+                width: 250px;
+                height: 250px;
+            }
+
+            .time-display {
+                font-size: 2.5rem;
+            }
+
+            .digital-clock {
+                padding: 15px 30px;
+            }
+
+            .clock-number {
+                font-size: 16px;
+            }
+
+            .hour-hand {
+                height: 70px;
+                margin-top: -70px;
+            }
+
+            .minute-hand {
+                height: 90px;
+                margin-top: -90px;
+            }
+
+            .second-hand {
+                height: 100px;
+                margin-top: -100px;
+            }
+
+            .clock-tick {
+                transform-origin: center 125px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .analog-clock {
+                width: 200px;
+                height: 200px;
+            }
+
+            .time-display {
+                font-size: 2rem;
+            }
+
+            .digital-clock {
+                padding: 10px 20px;
+            }
+
+            .clock-number {
+                font-size: 14px;
+            }
+
+            .hour-hand {
+                height: 60px;
+                margin-top: -60px;
+            }
+
+            .minute-hand {
+                height: 75px;
+                margin-top: -75px;
+            }
+
+            .second-hand {
+                height: 85px;
+                margin-top: -85px;
+            }
+
+            .clock-tick {
+                transform-origin: center 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-switch">
+        <div class="theme-btn light" onclick="setTheme('light')" title="Light Theme"></div>
+        <div class="theme-btn dark" onclick="setTheme('dark')" title="Dark Theme"></div>
+        <div class="theme-btn ocean" onclick="setTheme('ocean')" title="Ocean Theme"></div>
+    </div>
+
+    <div class="clock-container">
+        <div class="analog-clock">
+            <div class="clock-face">
+                <div class="clock-center"></div>
+                <div class="hand hour-hand" id="hourHand"></div>
+                <div class="hand minute-hand" id="minuteHand"></div>
+                <div class="hand second-hand" id="secondHand"></div>
+                
+                <div class="clock-number twelve">12</div>
+                <div class="clock-number one">1</div>
+                <div class="clock-number two">2</div>
+                <div class="clock-number three">3</div>
+                <div class="clock-number four">4</div>
+                <div class="clock-number five">5</div>
+                <div class="clock-number six">6</div>
+                <div class="clock-number seven">7</div>
+                <div class="clock-number eight">8</div>
+                <div class="clock-number nine">9</div>
+                <div class="clock-number ten">10</div>
+                <div class="clock-number eleven">11</div>
+            </div>
+        </div>
+
+        <div class="digital-clock">
+            <div class="time-display" id="timeDisplay">
+                <span id="hours">00</span><span class="time-separator">:</span><span id="minutes">00</span><span class="time-separator">:</span><span id="seconds">00</span>
+            </div>
+            <div class="date-display" id="dateDisplay">January 1, 2024</div>
+            <div class="day-display" id="dayDisplay">Monday</div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn active" id="format12" onclick="setTimeFormat(12)">12 Hour</button>
+            <button class="control-btn" id="format24" onclick="setTimeFormat(24)">24 Hour</button>
+            <button class="control-btn" id="showSeconds" onclick="toggleSeconds()">Hide Seconds</button>
+        </div>
+    </div>
+
+    <script>
+        let hourHand = document.getElementById('hourHand');
+        let minuteHand = document.getElementById('minuteHand');
+        let secondHand = document.getElementById('secondHand');
+        let timeDisplay = document.getElementById('timeDisplay');
+        let dateDisplay = document.getElementById('dateDisplay');
+        let dayDisplay = document.getElementById('dayDisplay');
+        let hoursSpan = document.getElementById('hours');
+        let minutesSpan = document.getElementById('minutes');
+        let secondsSpan = document.getElementById('seconds');
+
+        let timeFormat = 12;
+        let showSecondsFlag = true;
+        let currentTheme = 'light';
+
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const milliseconds = now.getMilliseconds();
+
+            // Calculate angles for hands
+            const secondAngle = (seconds + milliseconds / 1000) * 6; // 6 degrees per second
+            const minuteAngle = (minutes + seconds / 60) * 6; // 6 degrees per minute
+            const hourAngle = ((hours % 12) + minutes / 60) * 30; // 30 degrees per hour
+
+            // Update analog clock
+            secondHand.style.transform = `rotate(${secondAngle}deg)`;
+            minuteHand.style.transform = `rotate(${minuteAngle}deg)`;
+            hourHand.style.transform = `rotate(${hourAngle}deg)`;
+
+            // Update digital clock
+            let displayHours = hours;
+            let period = '';
+
+            if (timeFormat === 12) {
+                period = hours >= 12 ? ' PM' : ' AM';
+                displayHours = hours % 12 || 12;
+            }
+
+            hoursSpan.textContent = String(displayHours).padStart(2, '0');
+            minutesSpan.textContent = String(minutes).padStart(2, '0');
+            
+            if (showSecondsFlag) {
+                secondsSpan.textContent = String(seconds).padStart(2, '0');
+                secondsSpan.style.display = 'inline';
+            } else {
+                secondsSpan.style.display = 'none';
+            }
+
+            // Update date and day
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            dateDisplay.textContent = now.toLocaleDateString('en-US', options);
+            
+            const dayOptions = { weekday: 'long' };
+            dayDisplay.textContent = now.toLocaleDateString('en-US', dayOptions).toUpperCase();
+        }
+
+        function setTimeFormat(format) {
+            timeFormat = format;
+            document.getElementById('format12').classList.toggle('active', format === 12);
+            document.getElementById('format24').classList.toggle('active', format === 24);
+            updateClock();
+        }
+
+        function toggleSeconds() {
+            showSecondsFlag = !showSecondsFlag;
+            const btn = document.getElementById('showSeconds');
+            btn.textContent = showSecondsFlag ? 'Hide Seconds' : 'Show Seconds';
+            btn.classList.toggle('active', !showSecondsFlag);
+            
+            // Hide/show second hand
+            secondHand.style.display = showSecondsFlag ? 'block' : 'none';
+            updateClock();
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.body.className = theme === 'light' ? '' : `${theme}-theme`;
+        }
+
+        function createClockTicks() {
+            const clockFace = document.querySelector('.clock-face');
+            
+            for (let i = 0; i < 60; i++) {
+                const tick = document.createElement('div');
+                tick.className = i % 5 === 0 ? 'clock-tick major' : 'clock-tick';
+                tick.style.transform = `rotate(${i * 6}deg)`;
+                clockFace.appendChild(tick);
+            }
+        }
+
+        // Initialize clock
+        createClockTicks();
+        updateClock();
+        setInterval(updateClock, 50); // Update every 50ms for smooth second hand movement
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case '1':
+                    setTimeFormat(12);
+                    break;
+                case '2':
+                    setTimeFormat(24);
+                    break;
+                case 's':
+                case 'S':
+                    toggleSeconds();
+                    break;
+                case 't':
+                case 'T':
+                    const themes = ['light', 'dark', 'ocean'];
+                    const currentIndex = themes.indexOf(currentTheme);
+                    const nextTheme = themes[(currentIndex + 1) % themes.length];
+                    setTheme(nextTheme);
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
